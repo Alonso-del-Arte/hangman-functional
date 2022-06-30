@@ -28,3 +28,5 @@ Reimplement Hangman.
 * Add unit testing to your project
 
 End quote.
+
+Java 8 but might switch to Java 11 if necessary. JUnit 5.70.
