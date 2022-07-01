@@ -10,6 +10,8 @@ public class HangmanRound {
 
     private final String mysteryWord;
 
+    private final char[] mysteryWordChars;
+
     private boolean hasBeenSolved = false;
 
     private String uncovered;
@@ -29,7 +31,7 @@ public class HangmanRound {
         boolean found = false;
         char[] letters = this.uncovered.toCharArray();
         for (int i = 0; i < this.mysteryWord.length(); i++) {
-            if (this.mysteryWord.charAt(i) == letter) {
+            if (this.mysteryWordChars[i] == letter) {
                 found = true;
                 letters[i] = letter;
             }
@@ -48,6 +50,10 @@ public class HangmanRound {
         return this.hasBeenSolved;
     }
 
+    public boolean active() {
+        return false;
+    }
+
     public HangmanRound(String word) {
         this(word, DEFAULT_NUMBER_OF_MAX_GUESSES);
     }
@@ -62,6 +68,7 @@ public class HangmanRound {
             throw new IllegalArgumentException(excMsg);
         }
         this.mysteryWord = word;
+        this.mysteryWordChars = this.mysteryWord.toCharArray();
         this.totalChances = numberOfGuesses;
         char[] letters = this.mysteryWord.toCharArray();
         Arrays.fill(letters, '_');
