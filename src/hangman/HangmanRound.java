@@ -20,6 +20,7 @@ public class HangmanRound {
         return this.uncovered;
     }
 
+    // TODO: Re-implement without looping
     public boolean isPresent(char letter) {
         if (this.usedChances == this.totalChances) {
             String excMsg = this.totalChances + " chances already used up";

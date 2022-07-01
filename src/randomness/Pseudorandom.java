@@ -1,19 +1,34 @@
 package randomness;
 
+import java.io.InputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
- * Provides an easy way to access <code>Pseudorandomness</code> functions
- * without having to create a new instance each time.
+ * Provides an easy way to access pseudorandom functions without having to
+ * create a new instance each time.
  * @author Alonso del Arte
  */
 public class Pseudorandom {
 
     private static final Random RANDOM = new Random();
-//            = new Pseudorandomness(new RandomDotOrgAccess());
 
-    // TODO: Finish going through list of 3,000 common English words from:
-    // https://www.ef.edu/english-resources/english-vocabulary/top-3000-words/
+    private static final String RANDOM_WORD_QUERY_URL_STRING
+            = "https://random-word-api.herokuapp.com/word";
+
+    private static final String USER_AGENT_ID = "Java/"
+            + System.getProperty("java.version");
+
+    /**
+     * An array of almost 3,000 common English words drawn from the list of the
+     * <a href="https://www.ef.edu/english-resources/english-vocabulary/top-3000-words/">3000
+     * most common words in English</a> on the Education First (EF) website. I
+     * removed words with fewer than five letters and a few words that might be
+     * deemed controversial.
+     */
     public static final String[] SOME_COMMON_ENGLISH_WORDS = {"abandon",
             "ability", "about", "above", "abroad", "absence", "absolute",
             "absolutely", "absorb", "academic", "accept", "access", "accident",
@@ -270,21 +285,188 @@ public class Pseudorandom {
             "organic", "organization", "organize", "orientation", "origin",
             "original", "originally", "other", "others", "otherwise", "ought",
             "ourselves", "outcome", "outside", "overall", "overcome",
-            "overlook", "owner"};
+            "overlook", "owner", "package", "painful", "paint", "painter",
+            "painting", "Palestinian", "panel", "paper", "parent", "parking",
+            "participant", "participate", "participation", "particular",
+            "particularly", "partly", "partner", "partnership", "party",
+            "passage", "passenger", "passion", "patch", "patient", "pattern",
+            "pause", "payment", "peace", "penalty", "people", "pepper",
+            "perceive", "percentage", "perception", "perfect", "perfectly",
+            "perform", "performance", "perhaps", "period", "permanent",
+            "permission", "permit", "person", "personal", "personality",
+            "personally", "personnel", "perspective", "persuade", "phase",
+            "phenomenon", "philosophy", "phone", "photo", "photograph",
+            "photographer", "phrase", "physical", "physically", "physician",
+            "piano", "picture", "piece", "pilot", "pitch", "place", "plane",
+            "planet", "planning", "plant", "plastic", "plate", "platform",
+            "player", "please", "pleasure", "plenty", "pocket", "poetry",
+            "point", "police", "policy", "political", "politically",
+            "politician", "politics", "pollution", "popular", "population",
+            "porch", "portion", "portrait", "portray", "position", "positive",
+            "possess", "possibility", "possible", "possibly", "potato",
+            "potential", "potentially", "pound", "poverty", "powder", "power",
+            "powerful", "practical", "practice", "prayer", "precisely",
+            "predict", "prefer", "preference", "pregnancy", "pregnant",
+            "preparation", "prepare", "prescription", "presence", "present",
+            "presentation", "preserve", "president", "presidential", "press",
+            "pressure", "pretend", "pretty", "prevent", "previous",
+            "previously", "price", "pride", "priest", "primarily", "primary",
+            "prime", "principal", "principle", "print", "prior", "priority",
+            "prison", "prisoner", "privacy", "private", "probably", "problem",
+            "procedure", "proceed", "process", "produce", "producer", "product",
+            "production", "profession", "professional", "professor", "profile",
+            "profit", "program", "progress", "project", "prominent", "promise",
+            "promote", "prompt", "proof", "proper", "properly", "property",
+            "proportion", "proposal", "propose", "proposed", "prosecutor",
+            "prospect", "protect", "protection", "protein", "protest", "proud",
+            "prove", "provide", "provider", "province", "provision",
+            "psychological", "psychologist", "psychology", "public",
+            "publication", "publicly", "publish", "publisher", "punishment",
+            "purchase", "purpose", "pursue", "qualify", "quality", "quarter",
+            "quarterback", "question", "quick", "quickly", "quiet", "quietly",
+            "quite", "quote", "racial", "radical", "radio", "raise", "range",
+            "rapid", "rapidly", "rarely", "rather", "rating", "ratio", "reach",
+            "react", "reaction", "reader", "reading", "ready", "reality",
+            "realize", "really", "reason", "reasonable", "recall", "receive",
+            "recent", "recently", "recipe", "recognition", "recognize",
+            "recommend", "recommendation", "record", "recording", "recover",
+            "recovery", "recruit", "reduce", "reduction", "refer", "reference",
+            "reflect", "reflection", "reform", "refugee", "refuse", "regard",
+            "regarding", "regardless", "regime", "region", "regional",
+            "register", "regular", "regularly", "regulate", "regulation",
+            "reinforce", "reject", "relate", "relation", "relationship",
+            "relative", "relatively", "relax", "release", "relevant", "relief",
+            "religion", "religious", "remain", "remaining", "remarkable",
+            "remember", "remind", "remote", "remove", "repeat", "repeatedly",
+            "replace", "reply", "report", "reporter", "represent",
+            "representation", "representative", "Republican", "reputation",
+            "request", "require", "requirement", "research", "researcher",
+            "resemble", "reservation", "resident", "resist", "resistance",
+            "resolution", "resolve", "resort", "resource", "respect", "respond",
+            "respondent", "response", "responsibility", "responsible", "rest",
+            "restaurant", "restore", "restriction", "result", "retain",
+            "retire", "retirement", "return", "reveal", "revenue", "review",
+            "revolution", "rhythm", "rifle", "right", "river", "romantic",
+            "rough", "roughly", "round", "route", "routine", "running", "rural",
+            "Russian", "sacred", "safety", "salad", "salary", "sales", "sample",
+            "sanction", "satellite", "satisfaction", "satisfy", "sauce",
+            "saving", "scale", "scandal", "scared", "scenario", "scene",
+            "schedule", "scheme", "scholar", "scholarship", "school", "science",
+            "scientific", "scientist", "scope", "score", "scream", "screen",
+            "script", "search", "season", "second", "secret", "secretary",
+            "section", "sector", "secure", "security", "segment", "seize",
+            "select", "selection", "Senate", "senator", "senior", "sense",
+            "sensitive", "sentence", "separate", "sequence", "series",
+            "serious", "seriously", "serve", "service", "session", "setting",
+            "settle", "settlement", "seven", "several", "severe", "sexual",
+            "shade", "shadow", "shake", "shall", "shape", "share", "sharp",
+            "sheet", "shelf", "shell", "shelter", "shift", "shine", "ship",
+            "shirt", "shock", "shoot", "shooting", "shopping", "shore", "short",
+            "shortly", "should", "shoulder", "shout", "shower", "shrug",
+            "sight", "signal", "significance", "significant", "significantly",
+            "silence", "silent", "silver", "similar", "similarly", "simple",
+            "simply", "since", "singer", "single", "sister", "situation",
+            "skill", "slave", "sleep", "slice", "slide", "slight", "slightly",
+            "slowly", "small", "smart", "smell", "smile", "smoke", "smooth",
+            "soccer", "social", "society", "software", "solar", "soldier",
+            "solid", "solution", "solve", "somebody", "somehow", "someone",
+            "something", "sometimes", "somewhat", "somewhere", "sophisticated",
+            "sorry", "sound", "source", "south", "southern", "Soviet", "space",
+            "Spanish", "speak", "speaker", "special", "specialist", "species",
+            "specific", "specifically", "speech", "speed", "spend", "spending",
+            "spirit", "spiritual", "split", "spokesman", "sport", "spread",
+            "spring", "square", "squeeze", "stability", "stable", "staff",
+            "stage", "stair", "stake", "stand", "standard", "standing", "stare",
+            "start", "state", "statement", "station", "statistics", "status",
+            "steady", "steal", "steel", "stick", "still", "stock", "stomach",
+            "stone", "storage", "store", "storm", "story", "straight",
+            "strange", "stranger", "strategic", "strategy", "stream", "street",
+            "strength", "strengthen", "stress", "stretch", "strike", "string",
+            "strip", "stroke", "strong", "strongly", "structure", "struggle",
+            "student", "studio", "study", "stuff", "stupid", "style", "subject",
+            "submit", "subsequent", "substance", "substantial", "succeed",
+            "success", "successful", "successfully", "sudden", "suddenly",
+            "suffer", "sufficient", "sugar", "suggest", "suggestion", "suicide",
+            "summer", "summit", "super", "supply", "support", "supporter",
+            "suppose", "supposed", "Supreme", "surely", "surface", "surgery",
+            "surprise", "surprised", "surprising", "surprisingly", "surround",
+            "survey", "survival", "survive", "survivor", "suspect", "sustain",
+            "swear", "sweep", "sweet", "swing", "switch", "symbol", "symptom",
+            "system", "table", "tablespoon", "tactic", "talent", "target",
+            "taste", "taxpayer", "teach", "teacher", "teaching", "teaspoon",
+            "technical", "technique", "technology", "teenager", "telephone",
+            "telescope", "television", "temperature", "temporary", "tendency",
+            "tennis", "tension", "terms", "terrible", "territory", "terror",
+            "terrorism", "terrorist", "testify", "testimony", "testing",
+            "thank", "thanks", "theater", "their", "theme", "themselves",
+            "then", "theory", "therapy", "there", "therefore", "these", "thick",
+            "thing", "think", "thinking", "third", "thirty", "those", "though",
+            "thought", "thousand", "threat", "threaten", "three", "throat",
+            "through", "throughout", "throw", "ticket", "tight", "tired",
+            "tissue", "title", "tobacco", "today", "together", "tomato",
+            "tomorrow", "tongue", "tonight", "tooth", "topic", "total",
+            "totally", "touch", "tough", "tourist", "tournament", "toward",
+            "towards", "tower", "trace", "track", "trade", "tradition",
+            "traditional", "traffic", "tragedy", "trail", "train", "training",
+            "transfer", "transform", "transformation", "transition",
+            "translate", "transportation", "travel", "treat", "treatment",
+            "treaty", "tremendous", "trend", "trial", "tribe", "trick", "troop",
+            "trouble", "truck", "truly", "trust", "truth", "tunnel", "twelve",
+            "twenty", "twice", "typical", "typically", "ultimate", "ultimately",
+            "unable", "uncle", "under", "undergo", "understand",
+            "understanding", "unfortunately", "uniform", "union", "unique",
+            "united", "universal", "universe", "university", "unknown",
+            "unless", "unlike", "unlikely", "until", "unusual", "upper",
+            "urban", "urge", "useful", "usual", "usually", "utility",
+            "vacation", "valley", "valuable", "value", "variable", "variation",
+            "variety", "various", "vegetable", "vehicle", "venture", "version",
+            "versus", "vessel", "veteran", "victim", "victory", "video",
+            "viewer", "village", "violate", "violation", "violence", "violent",
+            "virtually", "virtue", "virus", "visible", "vision", "visit",
+            "visitor", "visual", "vital", "voice", "volume", "volunteer",
+            "voter", "vulnerable", "wander", "warning", "waste", "watch",
+            "water", "wealth", "wealthy", "weapon", "weather", "wedding",
+            "weekend", "weekly", "weigh", "weight", "welcome", "welfare",
+            "western", "whatever", "wheel", "whenever", "where", "whereas",
+            "whether", "which", "while", "whisper", "white", "whole", "whose",
+            "widely", "widespread", "willing", "window", "winner", "winter",
+            "wisdom", "withdraw", "within", "without", "witness", "woman",
+            "wonder", "wonderful", "wooden", "worker", "working", "works",
+            "workshop", "world", "worried", "worry", "worth", "would", "wound",
+            "write", "writer", "writing", "wrong", "yellow", "yesterday",
+            "yield", "young", "yours", "yourself", "youth"};
 
     // TODO: Write tests for this
     public static int nextInt() {
         return 0;
     }
 
-    // TODO: Change this to use external API through Pseudorandomness
+    // TODO: Change this to use external API
     public static int nextInt(int bound) {
         return RANDOM.nextInt(bound);
     }
 
-    // TODO: Write tests for this
-    public static String nextWord() {
-        return "Not implemented yet";
+    /**
+     * Retrieves a pseudorandomly chosen word from the
+     * <a href="https://random-word-api.herokuapp.com/word">Random Word API</a>.
+     * @return A word from the external API. For example, "burgomaster".
+     */
+    public static String nextWord() throws IOException {
+        URL queryURL = new URL(RANDOM_WORD_QUERY_URL_STRING);
+        HttpURLConnection connection
+                = (HttpURLConnection) queryURL.openConnection();
+        connection.setRequestProperty("User-Agent", USER_AGENT_ID);
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream stream = (InputStream) connection.getContent();
+            Scanner scanner = new Scanner(stream);
+            String response = scanner.next();
+            return response.replace("[\"", "").replace("\"]", "");
+        } else {
+            String excMsg = "Server responded to request with status code "
+                    + responseCode;
+            throw new IOException(excMsg);
+        }
     }
 
     public static CoinSide flipCoin() {

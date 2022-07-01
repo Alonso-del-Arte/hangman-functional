@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public final class SinglePressKeyboardTestFrame extends JFrame
@@ -30,9 +28,9 @@ public final class SinglePressKeyboardTestFrame extends JFrame
         this.textField = new JTextField(DEFAULT_COLUMN_WIDTH);
         this.textField.setEditable(false);
         this.add(this.textField, BorderLayout.PAGE_START);
-        keyboard = new SinglePressKeyboard(this);
-        this.addKeyListener(keyboard.physKbdListen);
-        this.add(keyboard, BorderLayout.CENTER);
+        this.keyboard = new SinglePressKeyboard(this);
+        this.addKeyListener(this.keyboard.physKbdListen);
+        this.add(this.keyboard, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
