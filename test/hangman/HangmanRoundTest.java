@@ -161,6 +161,34 @@ class HangmanRoundTest {
     }
 
     @Test
+    void testActive() {
+        System.out.println("active");
+        String word = "matchboxes";
+        int chances = word.length();
+        char[] letters = word.toCharArray();
+        HangmanRound round = new HangmanRound(word, chances);
+        for (char letter : letters) {
+            String msg = "Round should be active with solved so far \""
+                    + round.solvedSoFar() + "\"";
+            assert round.active() : msg;
+            String letterMsg = "Mystery word should have letter '" + letter
+                    + "'";
+            boolean opResult = round.isPresent(letter);
+            assert opResult : letterMsg;
+        }
+    }
+
+    @Test
+    void testInactiveAfterRunningOutOfGuesses() {
+        fail("Haven't written test yet");
+    }
+
+    @Test
+    void testInactiveAfterSolving() {
+        fail("Haven't written test yet");
+    }
+
+    @Test
     void testConstructorRejectsNullString() {
         Throwable t = assertThrows(NullPointerException.class, () -> {
             HangmanRound badRound = new HangmanRound(null);

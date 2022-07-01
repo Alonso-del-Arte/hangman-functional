@@ -51,7 +51,7 @@ public class HangmanRound {
     }
 
     public boolean active() {
-        return false;
+        return true;
     }
 
     public HangmanRound(String word) {
